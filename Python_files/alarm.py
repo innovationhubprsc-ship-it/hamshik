@@ -1,34 +1,71 @@
 import sys
-from PyQt5.QtWidgets import (QPushButton,QWidget,QBoxLayout,QLabel,QLineEdit,QApplication) # pyright: ignore[reportMissingImports]
-from PyQt5.QtGui import (QIcon, QFont) # pyright: ignore[reportMissingImports]
+from PyQt5.QtWidgets import QApplication, QWidget, QLineEdit, QPushButton, QLabel
+from PyQt5.QtCore import QTimer, QTime
+from PyQt5.QtGui import QPixmap, QIcon
 from datetime import datetime
+import pygame
+
+PATH = "C:\\Users\\hp\\Music\\Best Morning Alarm.mp3"
+IconPATH = "C:/Users/hp/OneDrive/Pictures/alram.png"
+format = "%d-%m-%Y %H:%M:%S"
 
 class AlarmClock(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Alarm Clock")
+        self.setFixedSize(300, 100)
+        pixmap = QPixmap(IconPATH)
+        pic = QIcon(pixmap)
+        self.setWindowIcon(pic)
+
+
         self.input = QLineEdit(self)
-        self.button = QPushButton("Enter",self)
-        self.setGeometry(20,20,180,50)
-        self.button.setGeometry(155,0,60,30)
-        self.input.setGeometry(0,0,154,30)
-        self.input.setPlaceholderText("Enter the time(HH:MM:SS)")
+        self.input.setGeometry(10, 10, 154, 30)
+        self.input.setPlaceholderText("Enter time (dd-mm-yy HH:MM:SS)")
+
+        self.button = QPushButton("Enter", self)
+        self.button.setGeometry(170, 10, 60, 30)
         self.button.clicked.connect(self.submit)
-        self.initUI()
-    def initUI(self):
-        print("!!!")
+
+        self.label = QLabel(self)
+        self.label.setGeometry(10, 45, 400, 30)
+        self.label.setStyleSheet("font-size:20px; font-family: Algerian;")
+
+        self.inCorrect = QLabel(self)
+        self.inCorrect.setGeometry(10, 70, 400, 30)
+        self.inCorrect.setStyleSheet("font-size:20px; font-family: Algerian; color:red")
+
+        self.alarm = QLabel(self)
+        self.alarm.setGeometry(10, 70, 400, 30)
+        self.alarm.setStyleSheet("font-size:20px; font-family: Algerian; color:red")
+
+        self.alarm_time = None
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_alarm)
+        self.timer.start(1000)  # Start timer immediately to update time
 
     def submit(self):
         text = self.input.text()
-        self.Time(text)
-    def Time(self, Time):
-        while (1):
+        try:
+            self.alarm_time = datetime.strptime(text, format)
+            self.alarm.setText(f"Alarm set for {self.alarm_time}")
+            self.inCorrect.clear()  # Clear error message
+        except ValueError:
+            self.inCorrect.setText("Invalid time format!")
+
+    def check_alarm(self):
+        current_time = QTime.currentTime().toString("HH:mm:ss")
+        self.label.setText(f"Current time: {current_time}")
+
+        if self.alarm_time and datetime.now() >= self.alarm_time:
             try:
-                time = datetime.strptime(Time, "%H:%M:%S")
-                break
-            except (ValueError):
-                print("Invaild!!")
-        return f"{time}"
+                self.label.setText("Alarm triggered!")
+                pygame.mixer.init()
+                pygame.mixer.music.load(PATH)
+                pygame.mixer.music.play()
+                self.timer.stop()
+            except IOError as e:
+                print("Something went wrong:", e)
 
 def main():
     app = QApplication(sys.argv)
