@@ -7,24 +7,25 @@ import pygame
 
 PATH = "C:\\Users\\hp\\Music\\Best Morning Alarm.mp3"
 IconPATH = "C:/Users/hp/OneDrive/Pictures/alram.png"
-format = "%d-%m-%Y %H:%M:%S"
+format = "%d-%m-%y %H:%M:%S"
 
 class AlarmClock(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Alarm Clock")
-        self.setFixedSize(300, 100)
+        self.setFixedSize(350, 100)
         pixmap = QPixmap(IconPATH)
         pic = QIcon(pixmap)
         self.setWindowIcon(pic)
 
 
         self.input = QLineEdit(self)
-        self.input.setGeometry(10, 10, 154, 30)
+        self.input.setGeometry(10, 10, 200, 30)
         self.input.setPlaceholderText("Enter time (dd-mm-yy HH:MM:SS)")
+        self.input.setObjectName("input")
 
         self.button = QPushButton("Enter", self)
-        self.button.setGeometry(170, 10, 60, 30)
+        self.button.setGeometry(220, 10, 60, 30)
         self.button.clicked.connect(self.submit)
 
         self.label = QLabel(self)
@@ -33,11 +34,11 @@ class AlarmClock(QWidget):
 
         self.inCorrect = QLabel(self)
         self.inCorrect.setGeometry(10, 70, 400, 30)
-        self.inCorrect.setStyleSheet("font-size:20px; font-family: Algerian; color:red")
+        self.inCorrect.setStyleSheet("""font-size:20px; font-family: Algerian; color:red;""")
 
         self.alarm = QLabel(self)
         self.alarm.setGeometry(10, 70, 400, 30)
-        self.alarm.setStyleSheet("font-size:20px; font-family: Algerian; color:red")
+        self.alarm.setStyleSheet("font-size:19px; font-family: Algerian; color:black")
 
         self.alarm_time = None
         self.timer = QTimer(self)
@@ -49,12 +50,16 @@ class AlarmClock(QWidget):
         try:
             self.alarm_time = datetime.strptime(text, format)
             self.alarm.setText(f"Alarm set for {self.alarm_time}")
+            self.button.setDisabled(True)
+            self.input.setStyleSheet("border-bottom: 2px solid blue;")
             self.inCorrect.clear()  # Clear error message
+            self.alarm.clear()
         except ValueError:
+            self.input.setStyleSheet("border: 2px solid red;")
             self.inCorrect.setText("Invalid time format!")
 
     def check_alarm(self):
-        current_time = QTime.currentTime().toString("HH:mm:ss")
+        current_time = datetime.now().strftime(format)
         self.label.setText(f"Current time: {current_time}")
 
         if self.alarm_time and datetime.now() >= self.alarm_time:
