@@ -1,17 +1,23 @@
 # Area Calculator
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLineEdit, QPushButton, QLabel, QMainWindow
+from PyQt5.QtGui import QIcon, QPixmap
 
+IconPATH = "C:/Users/hp/OneDrive/Pictures/alram.png"
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Area Calculator")
-        self.setFixedSize(400, 300)
+        self.setFixedSize(400, 175)
         self.initUI()
+        pixmap = QPixmap(IconPATH)
+        pic = QIcon(pixmap)
+        self.setWindowIcon(pic)
 
     def initUI(self):
         self.label = QLabel("Enter shape name:", self)
         self.label.setGeometry(10, 10, 150, 30)
+        self.label.setStyleSheet("font-size:20px; font-family: Algerian; font-weight: bold; color:black;")
 
         self.input = QLineEdit(self)
         self.input.setGeometry(160, 10, 150, 30)
@@ -25,7 +31,7 @@ class MainWindow(QMainWindow):
         self.input_fields = []
 
         self.result = QLabel("", self)
-        self.result.setGeometry(10, 200, 380, 80)
+        self.result.setGeometry(10, 50, 380, 80)
         self.result.setWordWrap(True)
 
     def clear_inputs(self):
